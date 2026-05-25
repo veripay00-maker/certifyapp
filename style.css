@@ -1,0 +1,542 @@
+/* ================================================
+   CertifyApp — style.css
+   Theme: Professional university blue & white
+   Fonts: Playfair Display (headings) + Lato (body)
+   ================================================ */
+
+/* ---- CSS Variables (easy to change colours) ---- */
+:root {
+  --blue-dark:   #1a3a6b;   /* deep navy */
+  --blue-mid:    #2563eb;   /* bright blue */
+  --blue-light:  #eff6ff;   /* pale blue bg */
+  --gold:        #c8a84b;   /* gold accent */
+  --white:       #ffffff;
+  --text-dark:   #1e293b;
+  --text-mid:    #475569;
+  --text-light:  #94a3b8;
+  --border:      #dbeafe;
+  --success:     #dcfce7;
+  --success-txt: #166534;
+  --error:       #fee2e2;
+  --error-txt:   #991b1b;
+  --radius:      14px;
+  --shadow:      0 4px 24px rgba(26,58,107,0.10);
+}
+
+/* ---- Reset & Base ---- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* Instant scroll — no smooth animation when switching pages */
+html { scroll-behavior: auto; }
+
+body {
+  font-family: 'Lato', sans-serif;
+  background: var(--blue-light);
+  color: var(--text-dark);
+  min-height: 100vh;
+}
+
+/* ================================================
+   PAGE SYSTEM — only .active page is shown
+   ================================================ */
+.page { display: none; }
+.page.active {
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  overflow-y: auto;
+  background: var(--blue-light);
+  z-index: 10;
+}
+
+#page-home.active {
+  background: linear-gradient(135deg, var(--blue-dark) 0%, #2a52a0 60%, #1d4ed8 100%);
+}
+
+/* ================================================
+   HOME PAGE
+   ================================================ */
+#page-home {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--blue-dark) 0%, #2a52a0 60%, #1d4ed8 100%);
+  padding: 20px;
+}
+
+.home-wrapper {
+  text-align: center;
+  max-width: 420px;
+  width: 100%;
+}
+
+/* Brand / Logo */
+.brand-icon {
+  font-size: 64px;
+  margin-bottom: 10px;
+  filter: drop-shadow(0 4px 16px rgba(0,0,0,0.3));
+}
+
+.brand-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.8rem;
+  font-weight: 700;
+  color: var(--white);
+  letter-spacing: 1px;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.brand-sub {
+  font-size: 1rem;
+  color: rgba(255,255,255,0.75);
+  margin-top: 4px;
+  margin-bottom: 40px;
+  font-weight: 300;
+  letter-spacing: 0.5px;
+}
+
+/* Home Buttons */
+.home-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.home-footer {
+  margin-top: 32px;
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.45);
+  font-weight: 300;
+  letter-spacing: 0.4px;
+}
+
+/* ================================================
+   SHARED LAYOUT
+   ================================================ */
+.container {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 30px 16px 60px;
+}
+
+/* ================================================
+   CARD
+   ================================================ */
+.card {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 32px 28px;
+  margin-bottom: 28px;
+  border: 1px solid var(--border);
+}
+ 
+.card-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.55rem;
+  color: var(--blue-dark);
+  margin-bottom: 6px;
+}
+
+.card-desc {
+  font-size: 0.92rem;
+  color: var(--text-mid);
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+/* ================================================
+   BUTTONS
+   ================================================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 28px;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Lato', sans-serif;
+  font-size: 0.97rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+  text-decoration: none;
+}
+
+.btn:hover  { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
+.btn:active { transform: translateY(0);    box-shadow: none; }
+
+/* Primary — solid blue */
+.btn-primary {
+  background: var(--blue-mid);
+  color: var(--white);
+  width: 100%;
+}
+.btn-primary:hover { background: #1d4ed8; }
+
+/* Secondary — outlined */
+.btn-secondary {
+  background: var(--white);
+  color: var(--blue-mid);
+  border: 2px solid var(--blue-mid);
+  width: 100%;
+}
+.btn-secondary:hover { background: var(--blue-light); }
+
+/* Back button */
+.btn-back {
+  background: none;
+  color: var(--blue-mid);
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 8px 0;
+  margin-bottom: 16px;
+  border: none;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.btn-back:hover { color: var(--blue-dark); transform: none; box-shadow: none; }
+
+/* Small danger button (remove bg) */
+.btn-danger-sm {
+  background: #fee2e2;
+  color: #dc2626;
+  border: none;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-danger-sm:hover { background: #fecaca; }
+
+/* Full-width utility */
+.full-width { width: 100%; }
+
+/* Side-by-side action buttons */
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.action-buttons .btn { flex: 1; min-width: 140px; }
+
+/* ================================================
+   FORM ELEMENTS
+   ================================================ */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--blue-dark);
+  margin-bottom: 7px;
+  letter-spacing: 0.3px;
+}
+
+.form-group input[type="text"],
+.form-group textarea {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-family: 'Lato', sans-serif;
+  font-size: 0.95rem;
+  color: var(--text-dark);
+  background: var(--blue-light);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  resize: vertical;
+}
+
+.form-group input[type="text"]:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--blue-mid);
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+  background: var(--white);
+}
+
+/* File input styling */
+.form-group input[type="file"] {
+  width: 100%;
+  padding: 10px;
+  border: 1.5px dashed var(--blue-mid);
+  border-radius: 8px;
+  background: var(--blue-light);
+  font-family: 'Lato', sans-serif;
+  font-size: 0.9rem;
+  color: var(--text-mid);
+  cursor: pointer;
+}
+
+.hint {
+  font-size: 0.8rem;
+  color: var(--text-light);
+  margin-top: 5px;
+}
+
+/* Background image preview box */
+.bg-preview {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--blue-light);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 16px;
+}
+
+.bg-preview img {
+  width: 90px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+
+/* Alerts */
+.alert-success {
+  background: var(--success);
+  color: var(--success-txt);
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-top: 14px;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.alert-error {
+  background: var(--error);
+  color: var(--error-txt);
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-top: 14px;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+/* Utility: hidden */
+.hidden { display: none !important; }
+
+/* ================================================
+   CERTIFICATE PREVIEW WRAPPER
+   ================================================ */
+#cert-preview-wrapper {
+  overflow-x: auto;          /* scrollable on mobile */
+  padding: 10px 0 20px;
+}
+
+/* ================================================
+   THE CERTIFICATE ITSELF
+   This is what gets captured as PNG
+   ================================================ */
+#certificate {
+  width: 900px;              /* fixed width for consistent output */
+  min-height: 620px;
+  background: var(--white);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: stretch;
+  /* background image set by JS if admin uploaded one */
+  background-size: cover;
+  background-position: center;
+  box-shadow: 0 8px 40px rgba(26,58,107,0.18);
+  border-radius: 6px;
+}
+
+/* Overlay: semi-transparent white so text is always readable */
+#certificate::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.88);
+  z-index: 0;
+}
+
+/* ---- Outer decorative border ---- */
+.cert-border-outer {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  margin: 22px;
+  border: 3px solid var(--blue-dark);
+  border-radius: 4px;
+  display: flex;
+  align-items: stretch;
+}
+
+/* ---- Inner decorative border ---- */
+.cert-border-inner {
+  flex: 1;
+  margin: 10px;
+  border: 1.5px solid var(--gold);
+  border-radius: 2px;
+  padding: 30px 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+}
+
+/* ---- Top / Bottom decoration row ---- */
+.cert-top-dec {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 12px;
+  color: var(--gold);
+}
+
+.cert-line {
+  flex: 1;
+  height: 1px;
+  background: var(--gold);
+}
+
+.cert-star {
+  font-size: 1rem;
+  color: var(--gold);
+}
+
+/* ---- University name ---- */
+.cert-university {
+  font-family: 'Lato', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--blue-dark);
+}
+
+/* ---- Certificate main title ---- */
+.cert-title-text {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--blue-dark);
+  line-height: 1.2;
+}
+
+/* ---- Gold divider ---- */
+.cert-divider {
+  width: 80px;
+  height: 3px;
+  background: var(--gold);
+  border-radius: 2px;
+  margin: 2px 0;
+}
+
+/* ---- "This is to certify that" ---- */
+.cert-presented {
+  font-size: 0.9rem;
+  font-style: italic;
+  color: var(--text-mid);
+}
+
+/* ---- Student name (big) ---- */
+.cert-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--blue-mid);
+  margin: 2px 0;
+  word-break: break-word;
+}
+
+/* ---- Body text ---- */
+.cert-body-text {
+  font-size: 0.92rem;
+  color: var(--text-mid);
+  line-height: 1.6;
+  max-width: 560px;
+}
+
+/* ---- Course / program ---- */
+.cert-course {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.05rem;
+  font-style: italic;
+  color: var(--blue-dark);
+}
+
+/* ---- Footer (signature + seal + date) ---- */
+.cert-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.cert-sig-block {
+  text-align: center;
+  flex: 1;
+}
+
+.cert-sig-block p {
+  font-size: 0.75rem;
+  color: var(--text-mid);
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+}
+
+.cert-sig-line {
+  width: 120px;
+  height: 1px;
+  background: var(--blue-dark);
+  margin: 0 auto;
+}
+
+.cert-seal {
+  font-size: 2.8rem;
+  flex: 0 0 60px;
+  text-align: center;
+}
+
+.cert-date-text {
+  font-size: 0.78rem !important;
+  color: var(--text-mid) !important;
+}
+
+/* ================================================
+   RESPONSIVE — mobile adjustments
+   ================================================ */
+@media (max-width: 600px) {
+  .card { padding: 22px 16px; }
+  .brand-title { font-size: 2.2rem; }
+  #certificate { width: 680px; min-height: 480px; }
+  .cert-border-inner { padding: 18px 28px; }
+  .cert-title-text { font-size: 1.5rem; }
+  .cert-name { font-size: 1.7rem; }
+  .action-buttons { flex-direction: column; }
+}
+
+/* ================================================
+   PRINT STYLES
+   Hide everything except the certificate
+   ================================================ */
+@media print {
+  body * { visibility: hidden; }
+  #certificate, #certificate * { visibility: visible; }
+  #certificate {
+    position: fixed;
+    left: 0; top: 0;
+    width: 100vw;
+    box-shadow: none;
+    border-radius: 0;
+  }
+}
