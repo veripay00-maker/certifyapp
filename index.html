@@ -5,113 +5,119 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>CertifyApp</title>
   <link rel="stylesheet" href="style.css" />
-  <!-- Google Fonts: Playfair Display for headings, Lato for body -->
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
-  <!-- html2canvas: lets us convert HTML into a downloadable PNG image -->
+  <!-- html2canvas: converts certificate HTML to PNG image -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <!-- Firebase SDK (loaded via CDN, no npm needed) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
   <!-- ===================== HOME PAGE ===================== -->
   <div id="page-home" class="page active">
     <div class="home-wrapper">
-      <!-- Logo / Branding -->
       <div class="brand">
         <div class="brand-icon">🎓</div>
         <h1 class="brand-title">CertifyApp</h1>
         <p class="brand-sub">University Certificate Generator</p>
       </div>
-
-      <!-- Navigation Buttons -->
       <div class="home-buttons">
-        <button class="btn btn-primary" onclick="showPage('page-admin')">
+        <button class="btn btn-primary" onclick="showPage('page-admin-login')">
           🛠️ Admin Panel
         </button>
         <button class="btn btn-secondary" onclick="showPage('page-student')">
           📄 Student Certificate
         </button>
       </div>
-
       <p class="home-footer">Design your certificate once · Share it forever</p>
     </div>
   </div>
 
-  <!-- ===================== ADMIN PANEL ===================== -->
+  <!-- ===================== ADMIN LOGIN PAGE ===================== -->
+  <div id="page-admin-login" class="page">
+    <div class="container">
+      <button class="btn btn-back" onclick="showPage('page-home')">← Back</button>
+      <div class="card">
+        <h2 class="card-title">🔐 Admin Login</h2>
+        <p class="card-desc">Only authorized admins can access the certificate template settings.</p>
+
+        <div class="form-group">
+          <label for="login-email">Email</label>
+          <input type="text" id="login-email" placeholder="admin@certifyapp.com" />
+        </div>
+
+        <div class="form-group">
+          <label for="login-password">Password</label>
+          <input type="password" id="login-password" placeholder="Enter your password" />
+        </div>
+
+        <button class="btn btn-primary full-width" onclick="adminLogin()">
+          🔓 Login
+        </button>
+
+        <!-- Loading spinner -->
+        <div id="login-loading" class="loading-msg hidden">⏳ Logging in...</div>
+
+        <!-- Error message -->
+        <div id="login-error" class="alert-error hidden"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== ADMIN PANEL (after login) ===================== -->
   <div id="page-admin" class="page">
     <div class="container">
 
-      <!-- Back Button -->
-      <button class="btn btn-back" onclick="showPage('page-home')">← Back</button>
+      <!-- Top bar with logout -->
+      <div class="admin-topbar">
+        <button class="btn btn-back" onclick="showPage('page-home')">← Back</button>
+        <button class="btn btn-logout" onclick="adminLogout()">🚪 Logout</button>
+      </div>
 
       <div class="card">
         <h2 class="card-title">🛠️ Admin Panel</h2>
-        <p class="card-desc">Set up the certificate template. Students will use this to generate their certificates.</p>
+        <p class="card-desc">Set up the certificate template. Changes are saved to the database and students will see them instantly.</p>
 
-        <!-- Certificate Title Input -->
         <div class="form-group">
           <label for="cert-title">Certificate Title</label>
-          <input
-            type="text"
-            id="cert-title"
-            placeholder="e.g. Certificate of Achievement"
-            maxlength="60"
-          />
+          <input type="text" id="cert-title" placeholder="e.g. Certificate of Achievement" maxlength="60"/>
         </div>
 
-        <!-- Sub-text / Body Input -->
         <div class="form-group">
           <label for="cert-body">Certificate Body Text</label>
-          <textarea
-            id="cert-body"
-            rows="3"
-            placeholder="e.g. This is to certify that the following student has successfully completed the course..."
-          ></textarea>
+          <textarea id="cert-body" rows="3" placeholder="e.g. This is to certify that the following student has successfully completed the course..."></textarea>
         </div>
 
-        <!-- Course / Program Name -->
         <div class="form-group">
           <label for="cert-course">Course / Program Name</label>
-          <input
-            type="text"
-            id="cert-course"
-            placeholder="e.g. Bachelor of Computer Science"
-            maxlength="80"
-          />
+          <input type="text" id="cert-course" placeholder="e.g. Bachelor of Computer Science" maxlength="80"/>
         </div>
 
-        <!-- University Name -->
         <div class="form-group">
           <label for="cert-university">University Name</label>
-          <input
-            type="text"
-            id="cert-university"
-            placeholder="e.g. University of Excellence"
-            maxlength="80"
-          />
+          <input type="text" id="cert-university" placeholder="e.g. CUST" maxlength="80"/>
         </div>
 
-        <!-- Background Image Upload -->
         <div class="form-group">
           <label for="cert-bg">Background Image (optional)</label>
           <input type="file" id="cert-bg" accept="image/*" onchange="previewBg(event)" />
-          <p class="hint">Recommended: landscape image (1000×700px or similar)</p>
+          <p class="hint">Recommended: landscape image (1000×700px)</p>
         </div>
 
-        <!-- Background Preview -->
         <div id="bg-preview-box" class="bg-preview hidden">
           <img id="bg-preview-img" src="" alt="Background Preview" />
           <button class="btn btn-danger-sm" onclick="removeBg()">✕ Remove</button>
         </div>
 
-        <!-- Save Button -->
         <button class="btn btn-primary full-width" onclick="saveTemplate()">
-          💾 Save Template
+          💾 Save to Database
         </button>
 
-        <!-- Success Message -->
-        <div id="admin-success" class="alert-success hidden">
-          ✅ Template saved! Students can now generate certificates.
-        </div>
+        <div id="admin-loading" class="loading-msg hidden">⏳ Saving to database...</div>
+        <div id="admin-success" class="alert-success hidden">✅ Template saved to database! Students can now generate certificates.</div>
+        <div id="admin-error" class="alert-error hidden"></div>
       </div>
     </div>
   </div>
@@ -119,78 +125,46 @@
   <!-- ===================== STUDENT CERTIFICATE PAGE ===================== -->
   <div id="page-student" class="page">
     <div class="container">
-
-      <!-- Back Button -->
       <button class="btn btn-back" onclick="showPage('page-home')">← Back</button>
 
       <div class="card">
         <h2 class="card-title">📄 Your Certificate</h2>
         <p class="card-desc">Enter your name to generate your personalized certificate.</p>
 
-        <!-- Student Name Input -->
         <div class="form-group">
           <label for="student-name">Your Full Name</label>
-          <input
-            type="text"
-            id="student-name"
-            placeholder="e.g. Ahmed Ali Khan"
-            maxlength="60"
-            oninput="updatePreview()"
-          />
+          <input type="text" id="student-name" placeholder="e.g. Ahmed Ali Khan" maxlength="60" oninput="updatePreview()"/>
         </div>
 
-        <!-- Action Buttons -->
         <div class="action-buttons">
           <button class="btn btn-primary" onclick="downloadCert()">⬇️ Download PNG</button>
           <button class="btn btn-secondary" onclick="printCert()">🖨️ Print</button>
         </div>
 
-        <!-- Error if no template -->
-        <div id="no-template-msg" class="alert-error hidden">
-          ⚠️ No template found. Please ask the admin to save a template first.
-        </div>
+        <div id="student-loading" class="loading-msg hidden">⏳ Loading template from database...</div>
+        <div id="no-template-msg" class="alert-error hidden">⚠️ No template found. Please ask the admin to save a template first.</div>
       </div>
 
-      <!-- ===== LIVE CERTIFICATE PREVIEW ===== -->
-      <!-- This is the element we render to PNG / print -->
+      <!-- Live Certificate Preview -->
       <div id="cert-preview-wrapper">
         <div id="certificate">
-
-          <!-- Decorative border lines -->
           <div class="cert-border-outer">
             <div class="cert-border-inner">
 
-              <!-- Top decoration -->
               <div class="cert-top-dec">
                 <div class="cert-line"></div>
                 <span class="cert-star">✦</span>
                 <div class="cert-line"></div>
               </div>
 
-              <!-- University name -->
-              <p id="prev-university" class="cert-university">University of Excellence</p>
-
-              <!-- Main title -->
+              <p id="prev-university" class="cert-university">University Name</p>
               <h1 id="prev-title" class="cert-title-text">Certificate of Achievement</h1>
-
-              <!-- Divider -->
               <div class="cert-divider"></div>
-
-              <!-- "Presented to" label -->
               <p class="cert-presented">This is to certify that</p>
+              <h2 id="prev-name" class="cert-name">Your Name Here</h2>
+              <p id="prev-body" class="cert-body-text">has successfully completed the requirements of the program.</p>
+              <p id="prev-course" class="cert-course">Program Name</p>
 
-              <!-- Student name (updates live) -->
-              <h2 id="prev-name" class="cert-name">Your Name</h2>
-
-              <!-- Body text -->
-              <p id="prev-body" class="cert-body-text">
-                has successfully completed the requirements of the program.
-              </p>
-
-              <!-- Course name -->
-              <p id="prev-course" class="cert-course">Bachelor of Computer Science</p>
-
-              <!-- Bottom: date + signature line -->
               <div class="cert-footer">
                 <div class="cert-sig-block">
                   <div class="cert-sig-line"></div>
@@ -203,23 +177,20 @@
                 </div>
               </div>
 
-              <!-- Bottom decoration -->
               <div class="cert-top-dec">
                 <div class="cert-line"></div>
                 <span class="cert-star">✦</span>
                 <div class="cert-line"></div>
               </div>
 
-            </div><!-- /cert-border-inner -->
-          </div><!-- /cert-border-outer -->
+            </div>
+          </div>
+        </div>
+      </div>
 
-        </div><!-- /certificate -->
-      </div><!-- /cert-preview-wrapper -->
+    </div>
+  </div>
 
-    </div><!-- /container -->
-  </div><!-- /page-student -->
-
-  <!-- Main JavaScript -->
   <script src="script.js"></script>
 </body>
 </html>
