@@ -1,251 +1,325 @@
 /* ================================================
    CertifyApp — script.js
-   Plain JavaScript. No frameworks, no backend.
-   All data is stored in localStorage.
+   Now with Firebase Authentication + Firestore Database
+   Admin logs in → saves template to database
+   Students load template from database (not localStorage)
    ================================================ */
 
 
 /* -----------------------------------------------
+   FIREBASE CONFIGURATION
+   Your unique Firebase project keys
+----------------------------------------------- */
+const firebaseConfig = {
+  apiKey: "AIzaSyBKSVPFVglXKQkgt_QXT4bKy4z9i_UQ2_Q",
+  authDomain: "certifyapp-e7b38.firebaseapp.com",
+  projectId: "certifyapp-e7b38",
+  storageBucket: "certifyapp-e7b38.firebasestorage.app",
+  messagingSenderId: "472095305441",
+  appId: "1:472095305441:web:c6324bb095a918ee8c91a0"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+
+// Get references to Firebase services
+const auth = firebase.auth();           // For admin login/logout
+const db   = firebase.firestore();      // For saving/loading template
+
+
+/* -----------------------------------------------
    PAGE NAVIGATION
-   Shows one page, hides all others.
-   Called from HTML onclick attributes.
 ----------------------------------------------- */
 function showPage(pageId) {
-  // Scroll to the very top FIRST — instant, before anything else
+  // Scroll to top instantly
   document.documentElement.scrollTop = 0;
-  document.body.scrollTop = 0; // Safari fallback
+  document.body.scrollTop = 0;
+
+  // If admin tries to go to admin panel, check login first
+  if (pageId === 'page-admin') {
+    // Check if admin is logged in
+    if (!auth.currentUser) {
+      // Not logged in → go to login page instead
+      showPage('page-admin-login');
+      return;
+    }
+  }
 
   // Hide all pages
   document.querySelectorAll('.page').forEach(function(p) {
     p.classList.remove('active');
   });
 
-  // Show the requested page
+  // Show requested page
   document.getElementById(pageId).classList.add('active');
 
-  // When going to the student page, load saved template
+  // Load template when student page opens
   if (pageId === 'page-student') {
     loadTemplateForStudent();
   }
 
-  // When going to admin, load any previously saved values
+  // Load saved template into admin form
   if (pageId === 'page-admin') {
     loadTemplateIntoAdmin();
   }
 
-  // Scroll again after page switch just to be safe
+  // Scroll to top again after switch
   document.documentElement.scrollTop = 0;
   document.body.scrollTop = 0;
 }
 
 
 /* -----------------------------------------------
-   ADMIN — BACKGROUND IMAGE PREVIEW
-   Called when the file input changes.
+   ADMIN LOGIN
+   Uses Firebase Authentication
 ----------------------------------------------- */
-function previewBg(event) {
-  var file = event.target.files[0];
+function adminLogin() {
+  var email    = document.getElementById('login-email').value.trim();
+  var password = document.getElementById('login-password').value.trim();
 
-  // If no file selected, do nothing
-  if (!file) return;
+  // Basic validation
+  if (!email || !password) {
+    showError('login-error', 'Please enter both email and password.');
+    return;
+  }
 
-  // FileReader converts the image file to a base64 string
-  var reader = new FileReader();
+  // Show loading
+  document.getElementById('login-loading').classList.remove('hidden');
+  document.getElementById('login-error').classList.add('hidden');
 
-  reader.onload = function(e) {
-    // Show preview image
-    document.getElementById('bg-preview-img').src = e.target.result;
-    document.getElementById('bg-preview-box').classList.remove('hidden');
+  // Firebase sign in
+  auth.signInWithEmailAndPassword(email, password)
+    .then(function(userCredential) {
+      // Login successful!
+      document.getElementById('login-loading').classList.add('hidden');
 
-    // Temporarily store in a global variable (saved when admin clicks Save)
-    window._tempBgImage = e.target.result;
-  };
+      // Clear the form
+      document.getElementById('login-email').value = '';
+      document.getElementById('login-password').value = '';
 
-  reader.readAsDataURL(file); // Reads file as base64
+      // Go to admin panel
+      showPage('page-admin');
+    })
+    .catch(function(error) {
+      // Login failed
+      document.getElementById('login-loading').classList.add('hidden');
+      showError('login-error', '❌ Wrong email or password. Please try again.');
+      console.error('Login error:', error);
+    });
+}
+
+// Allow pressing Enter key to login
+document.addEventListener('keydown', function(e) {
+  var loginPage = document.getElementById('page-admin-login');
+  if (e.key === 'Enter' && loginPage.classList.contains('active')) {
+    adminLogin();
+  }
+});
+
+
+/* -----------------------------------------------
+   ADMIN LOGOUT
+----------------------------------------------- */
+function adminLogout() {
+  auth.signOut().then(function() {
+    showPage('page-home');
+  });
 }
 
 
 /* -----------------------------------------------
-   ADMIN — REMOVE BACKGROUND IMAGE
+   ADMIN — BACKGROUND IMAGE PREVIEW
+----------------------------------------------- */
+function previewBg(event) {
+  var file = event.target.files[0];
+  if (!file) return;
+
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    document.getElementById('bg-preview-img').src = e.target.result;
+    document.getElementById('bg-preview-box').classList.remove('hidden');
+    window._tempBgImage = e.target.result; // store base64
+  };
+  reader.readAsDataURL(file);
+}
+
+
+/* -----------------------------------------------
+   ADMIN — REMOVE BACKGROUND
 ----------------------------------------------- */
 function removeBg() {
-  // Clear preview
   document.getElementById('bg-preview-img').src = '';
   document.getElementById('bg-preview-box').classList.add('hidden');
-
-  // Clear file input
   document.getElementById('cert-bg').value = '';
-
-  // Clear temp variable
   window._tempBgImage = null;
 }
 
 
 /* -----------------------------------------------
-   ADMIN — LOAD SAVED TEMPLATE INTO FORM FIELDS
-   So the admin sees what they saved before.
+   ADMIN — LOAD TEMPLATE INTO FORM
+   Loads from Firestore database
 ----------------------------------------------- */
 function loadTemplateIntoAdmin() {
-  // Get saved template from localStorage (returns null if nothing saved)
-  var saved = localStorage.getItem('certTemplate');
-  if (!saved) return; // Nothing saved yet
+  // Load from Firestore
+  db.collection('templates').doc('main').get()
+    .then(function(doc) {
+      if (doc.exists) {
+        var data = doc.data();
+        document.getElementById('cert-title').value      = data.title      || '';
+        document.getElementById('cert-body').value       = data.body       || '';
+        document.getElementById('cert-course').value     = data.course     || '';
+        document.getElementById('cert-university').value = data.university || '';
 
-  var template = JSON.parse(saved); // Convert JSON string back to object
-
-  // Fill in form fields with saved values
-  document.getElementById('cert-title').value      = template.title      || '';
-  document.getElementById('cert-body').value       = template.body       || '';
-  document.getElementById('cert-course').value     = template.course     || '';
-  document.getElementById('cert-university').value = template.university || '';
-
-  // Show background preview if one was saved
-  if (template.bgImage) {
-    window._tempBgImage = template.bgImage;
-    document.getElementById('bg-preview-img').src = template.bgImage;
-    document.getElementById('bg-preview-box').classList.remove('hidden');
-  }
-
-  // Hide success message (it was from a previous save)
-  document.getElementById('admin-success').classList.add('hidden');
+        if (data.bgImage) {
+          window._tempBgImage = data.bgImage;
+          document.getElementById('bg-preview-img').src = data.bgImage;
+          document.getElementById('bg-preview-box').classList.remove('hidden');
+        }
+      }
+    })
+    .catch(function(error) {
+      console.error('Could not load template:', error);
+    });
 }
 
 
 /* -----------------------------------------------
-   ADMIN — SAVE TEMPLATE TO localStorage
-   Called when admin clicks "Save Template".
+   ADMIN — SAVE TEMPLATE TO FIRESTORE DATABASE
 ----------------------------------------------- */
 function saveTemplate() {
-  // Collect form values (trim removes extra spaces)
   var title      = document.getElementById('cert-title').value.trim();
   var body       = document.getElementById('cert-body').value.trim();
   var course     = document.getElementById('cert-course').value.trim();
   var university = document.getElementById('cert-university').value.trim();
 
-  // Require at least a title
   if (!title) {
-    alert('Please enter a Certificate Title before saving.');
+    showError('admin-error', 'Please enter a Certificate Title before saving.');
     return;
   }
 
-  // Build the template object
+  // Show loading
+  document.getElementById('admin-loading').classList.remove('hidden');
+  document.getElementById('admin-success').classList.add('hidden');
+  document.getElementById('admin-error').classList.add('hidden');
+
+  // Build template object
   var template = {
     title:      title,
     body:       body,
     course:     course,
     university: university,
-    bgImage:    window._tempBgImage || null  // base64 string or null
+    bgImage:    window._tempBgImage || null,
+    updatedAt:  firebase.firestore.FieldValue.serverTimestamp() // saves time of update
   };
 
-  // Save to localStorage as a JSON string
-  localStorage.setItem('certTemplate', JSON.stringify(template));
+  // Save to Firestore — collection: 'templates', document: 'main'
+  db.collection('templates').doc('main').set(template)
+    .then(function() {
+      // Saved successfully!
+      document.getElementById('admin-loading').classList.add('hidden');
+      document.getElementById('admin-success').classList.remove('hidden');
 
-  // Show success message
-  var successMsg = document.getElementById('admin-success');
-  successMsg.classList.remove('hidden');
-
-  // Auto-hide success message after 3 seconds
-  setTimeout(function() {
-    successMsg.classList.add('hidden');
-  }, 3000);
+      // Hide success after 3 seconds
+      setTimeout(function() {
+        document.getElementById('admin-success').classList.add('hidden');
+      }, 3000);
+    })
+    .catch(function(error) {
+      document.getElementById('admin-loading').classList.add('hidden');
+      showError('admin-error', '❌ Could not save. Check your internet connection.');
+      console.error('Save error:', error);
+    });
 }
 
 
 /* -----------------------------------------------
-   STUDENT — LOAD TEMPLATE AND UPDATE PREVIEW
-   Called when student page loads.
+   STUDENT — LOAD TEMPLATE FROM FIRESTORE
 ----------------------------------------------- */
 function loadTemplateForStudent() {
-  var saved = localStorage.getItem('certTemplate');
-
-  if (!saved) {
-    // No template found — show error message
-    document.getElementById('no-template-msg').classList.remove('hidden');
-    return;
-  }
-
-  // Hide error if it was showing
+  // Show loading
+  document.getElementById('student-loading').classList.remove('hidden');
   document.getElementById('no-template-msg').classList.add('hidden');
 
-  var template = JSON.parse(saved);
+  // Load from Firestore
+  db.collection('templates').doc('main').get()
+    .then(function(doc) {
+      document.getElementById('student-loading').classList.add('hidden');
 
-  // Update certificate preview elements with saved template data
-  document.getElementById('prev-title').textContent =
-    template.title || 'Certificate of Achievement';
+      if (!doc.exists) {
+        // No template saved yet
+        document.getElementById('no-template-msg').classList.remove('hidden');
+        return;
+      }
 
-  document.getElementById('prev-body').textContent =
-    template.body || 'has successfully completed the requirements of the program.';
+      var data = doc.data();
 
-  document.getElementById('prev-course').textContent =
-    template.course || '';
+      // Update certificate preview with database data
+      document.getElementById('prev-title').textContent =
+        data.title || 'Certificate of Achievement';
 
-  document.getElementById('prev-university').textContent =
-    template.university || '';
+      document.getElementById('prev-body').textContent =
+        data.body || 'has successfully completed the requirements of the program.';
 
-  // Set background image on the certificate div if one was saved
-  var cert = document.getElementById('certificate');
-  if (template.bgImage) {
-    cert.style.backgroundImage = 'url(' + template.bgImage + ')';
-  } else {
-    cert.style.backgroundImage = 'none';
-  }
+      document.getElementById('prev-course').textContent =
+        data.course || '';
 
-  // Set today's date in the date field
-  var today = new Date();
-  var dateStr = today.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
-  document.getElementById('prev-date').textContent = dateStr;
+      document.getElementById('prev-university').textContent =
+        data.university || '';
 
-  // Also update the name preview with whatever is in the input
-  updatePreview();
+      // Set background image if saved
+      var cert = document.getElementById('certificate');
+      if (data.bgImage) {
+        cert.style.backgroundImage = 'url(' + data.bgImage + ')';
+      } else {
+        cert.style.backgroundImage = 'none';
+      }
+
+      // Set today's date
+      var today = new Date();
+      var dateStr = today.toLocaleDateString('en-US', {
+        year: 'numeric', month: 'long', day: 'numeric'
+      });
+      document.getElementById('prev-date').textContent = dateStr;
+
+      // Update name preview
+      updatePreview();
+    })
+    .catch(function(error) {
+      document.getElementById('student-loading').classList.add('hidden');
+      document.getElementById('no-template-msg').classList.remove('hidden');
+      console.error('Load error:', error);
+    });
 }
 
 
 /* -----------------------------------------------
    STUDENT — LIVE NAME PREVIEW
-   Called every time the student types in the name field.
 ----------------------------------------------- */
 function updatePreview() {
   var name = document.getElementById('student-name').value.trim();
-
-  // Show placeholder text if field is empty
   document.getElementById('prev-name').textContent = name || 'Your Name Here';
 }
 
 
 /* -----------------------------------------------
    STUDENT — DOWNLOAD CERTIFICATE AS PNG
-   Uses html2canvas to capture the certificate div.
 ----------------------------------------------- */
 function downloadCert() {
-  // Check that a name was entered
   var name = document.getElementById('student-name').value.trim();
   if (!name) {
     alert('Please enter your name before downloading.');
     return;
   }
 
-  // The element to capture
-  var certElement = document.getElementById('certificate');
-
-  // html2canvas renders the element to a <canvas>
-  html2canvas(certElement, {
-    scale: 2,                  // 2x resolution for sharper output
-    useCORS: true,             // allow cross-origin images
-    backgroundColor: '#ffffff' // white background
+  html2canvas(document.getElementById('certificate'), {
+    scale: 2,
+    useCORS: true,
+    backgroundColor: '#ffffff'
   }).then(function(canvas) {
-
-    // Convert canvas to a PNG image URL
-    var imageURL = canvas.toDataURL('image/png');
-
-    // Create a temporary link and click it to trigger download
     var link = document.createElement('a');
-    link.href = imageURL;
-    link.download = name + '_Certificate.png';  // filename
+    link.href = canvas.toDataURL('image/png');
+    link.download = name + '_Certificate.png';
     link.click();
-
   }).catch(function(error) {
     console.error('Download failed:', error);
     alert('Could not generate image. Please try again.');
@@ -255,33 +329,34 @@ function downloadCert() {
 
 /* -----------------------------------------------
    STUDENT — PRINT CERTIFICATE
-   Opens the browser print dialog.
-   CSS @media print hides everything except cert.
 ----------------------------------------------- */
 function printCert() {
-  // Check that a name was entered
   var name = document.getElementById('student-name').value.trim();
   if (!name) {
     alert('Please enter your name before printing.');
     return;
   }
-
-  // Trigger browser print
   window.print();
 }
 
 
 /* -----------------------------------------------
-   ON PAGE LOAD
-   Set up any initial state.
+   HELPER — Show error message in any element
+----------------------------------------------- */
+function showError(elementId, message) {
+  var el = document.getElementById(elementId);
+  el.textContent = message;
+  el.classList.remove('hidden');
+}
+
+
+/* -----------------------------------------------
+   ON PAGE LOAD — Set date in certificate
 ----------------------------------------------- */
 window.addEventListener('load', function() {
-  // Set today's date in the certificate preview
   var today = new Date();
   var dateStr = today.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
+    year: 'numeric', month: 'long', day: 'numeric'
   });
   var dateEl = document.getElementById('prev-date');
   if (dateEl) dateEl.textContent = dateStr;
