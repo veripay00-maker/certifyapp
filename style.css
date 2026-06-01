@@ -1,15 +1,13 @@
 /* ================================================
    CertifyApp — style.css
    Theme: Professional university blue & white
-   Fonts: Playfair Display (headings) + Lato (body)
    ================================================ */
 
-/* ---- CSS Variables (easy to change colours) ---- */
 :root {
-  --blue-dark:   #1a3a6b;   /* deep navy */
-  --blue-mid:    #2563eb;   /* bright blue */
-  --blue-light:  #eff6ff;   /* pale blue bg */
-  --gold:        #c8a84b;   /* gold accent */
+  --blue-dark:   #1a3a6b;
+  --blue-mid:    #2563eb;
+  --blue-light:  #eff6ff;
+  --gold:        #c8a84b;
   --white:       #ffffff;
   --text-dark:   #1e293b;
   --text-mid:    #475569;
@@ -23,7 +21,6 @@
   --shadow:      0 4px 24px rgba(26,58,107,0.10);
 }
 
-/* ---- Reset & Base ---- */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 /* Instant scroll — no smooth animation when switching pages */
@@ -37,7 +34,7 @@ body {
 }
 
 /* ================================================
-   PAGE SYSTEM — only .active page is shown
+   PAGE SYSTEM
    ================================================ */
 .page { display: none; }
 .page.active {
@@ -54,27 +51,21 @@ body {
 
 #page-home.active {
   background: linear-gradient(135deg, var(--blue-dark) 0%, #2a52a0 60%, #1d4ed8 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* ================================================
    HOME PAGE
    ================================================ */
-#page-home {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, var(--blue-dark) 0%, #2a52a0 60%, #1d4ed8 100%);
-  padding: 20px;
-}
-
 .home-wrapper {
   text-align: center;
   max-width: 420px;
   width: 100%;
+  padding: 20px;
 }
 
-/* Brand / Logo */
 .brand-icon {
   font-size: 64px;
   margin-bottom: 10px;
@@ -99,7 +90,6 @@ body {
   letter-spacing: 0.5px;
 }
 
-/* Home Buttons */
 .home-buttons {
   display: flex;
   flex-direction: column;
@@ -111,7 +101,6 @@ body {
   font-size: 0.82rem;
   color: rgba(255,255,255,0.45);
   font-weight: 300;
-  letter-spacing: 0.4px;
 }
 
 /* ================================================
@@ -134,7 +123,7 @@ body {
   margin-bottom: 28px;
   border: 1px solid var(--border);
 }
- 
+
 .card-title {
   font-family: 'Playfair Display', serif;
   font-size: 1.55rem;
@@ -165,44 +154,50 @@ body {
   font-weight: 700;
   cursor: pointer;
   transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
-  text-decoration: none;
 }
 
 .btn:hover  { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
-.btn:active { transform: translateY(0);    box-shadow: none; }
+.btn:active { transform: translateY(0); box-shadow: none; }
 
-/* Primary — solid blue */
-.btn-primary {
-  background: var(--blue-mid);
-  color: var(--white);
-  width: 100%;
-}
+.btn-primary  { background: var(--blue-mid); color: var(--white); width: 100%; }
 .btn-primary:hover { background: #1d4ed8; }
 
-/* Secondary — outlined */
-.btn-secondary {
-  background: var(--white);
-  color: var(--blue-mid);
-  border: 2px solid var(--blue-mid);
-  width: 100%;
-}
+.btn-secondary { background: var(--white); color: var(--blue-mid); border: 2px solid var(--blue-mid); width: 100%; }
 .btn-secondary:hover { background: var(--blue-light); }
 
-/* Back button */
 .btn-back {
   background: none;
   color: var(--blue-mid);
   font-size: 0.9rem;
   font-weight: 700;
   padding: 8px 0;
-  margin-bottom: 16px;
   border: none;
   cursor: pointer;
-  transition: color 0.15s;
 }
 .btn-back:hover { color: var(--blue-dark); transform: none; box-shadow: none; }
 
-/* Small danger button (remove bg) */
+/* Logout button */
+.btn-logout {
+  background: var(--error);
+  color: var(--error-txt);
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-logout:hover { background: #fecaca; transform: none; box-shadow: none; }
+
+/* Admin top bar (back + logout side by side) */
+.admin-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
 .btn-danger-sm {
   background: #fee2e2;
   color: #dc2626;
@@ -212,27 +207,18 @@ body {
   font-size: 0.8rem;
   font-weight: 700;
   cursor: pointer;
-  transition: background 0.15s;
 }
 .btn-danger-sm:hover { background: #fecaca; }
 
-/* Full-width utility */
 .full-width { width: 100%; }
 
-/* Side-by-side action buttons */
-.action-buttons {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-}
+.action-buttons { display: flex; gap: 12px; flex-wrap: wrap; }
 .action-buttons .btn { flex: 1; min-width: 140px; }
 
 /* ================================================
    FORM ELEMENTS
    ================================================ */
-.form-group {
-  margin-bottom: 20px;
-}
+.form-group { margin-bottom: 20px; }
 
 .form-group label {
   display: block;
@@ -240,10 +226,10 @@ body {
   font-weight: 700;
   color: var(--blue-dark);
   margin-bottom: 7px;
-  letter-spacing: 0.3px;
 }
 
 .form-group input[type="text"],
+.form-group input[type="password"],
 .form-group textarea {
   width: 100%;
   padding: 11px 14px;
@@ -257,7 +243,7 @@ body {
   resize: vertical;
 }
 
-.form-group input[type="text"]:focus,
+.form-group input:focus,
 .form-group textarea:focus {
   outline: none;
   border-color: var(--blue-mid);
@@ -265,7 +251,6 @@ body {
   background: var(--white);
 }
 
-/* File input styling */
 .form-group input[type="file"] {
   width: 100%;
   padding: 10px;
@@ -278,13 +263,8 @@ body {
   cursor: pointer;
 }
 
-.hint {
-  font-size: 0.8rem;
-  color: var(--text-light);
-  margin-top: 5px;
-}
+.hint { font-size: 0.8rem; color: var(--text-light); margin-top: 5px; }
 
-/* Background image preview box */
 .bg-preview {
   display: flex;
   align-items: center;
@@ -301,10 +281,9 @@ body {
   height: 60px;
   object-fit: cover;
   border-radius: 6px;
-  border: 1px solid var(--border);
 }
 
-/* Alerts */
+/* Alerts & Messages */
 .alert-success {
   background: var(--success);
   color: var(--success-txt);
@@ -327,37 +306,39 @@ body {
   font-weight: 700;
 }
 
-/* Utility: hidden */
+.loading-msg {
+  text-align: center;
+  color: var(--blue-mid);
+  font-size: 0.92rem;
+  font-weight: 700;
+  margin-top: 14px;
+  padding: 10px;
+}
+
 .hidden { display: none !important; }
 
 /* ================================================
-   CERTIFICATE PREVIEW WRAPPER
+   CERTIFICATE PREVIEW
    ================================================ */
 #cert-preview-wrapper {
-  overflow-x: auto;          /* scrollable on mobile */
+  overflow-x: auto;
   padding: 10px 0 20px;
 }
 
-/* ================================================
-   THE CERTIFICATE ITSELF
-   This is what gets captured as PNG
-   ================================================ */
 #certificate {
-  width: 900px;              /* fixed width for consistent output */
+  width: 900px;
   min-height: 620px;
   background: var(--white);
   position: relative;
   overflow: hidden;
   display: flex;
   align-items: stretch;
-  /* background image set by JS if admin uploaded one */
   background-size: cover;
   background-position: center;
   box-shadow: 0 8px 40px rgba(26,58,107,0.18);
   border-radius: 6px;
 }
 
-/* Overlay: semi-transparent white so text is always readable */
 #certificate::before {
   content: '';
   position: absolute;
@@ -366,7 +347,6 @@ body {
   z-index: 0;
 }
 
-/* ---- Outer decorative border ---- */
 .cert-border-outer {
   position: relative;
   z-index: 1;
@@ -378,7 +358,6 @@ body {
   align-items: stretch;
 }
 
-/* ---- Inner decorative border ---- */
 .cert-border-inner {
   flex: 1;
   margin: 10px;
@@ -392,7 +371,6 @@ body {
   gap: 10px;
 }
 
-/* ---- Top / Bottom decoration row ---- */
 .cert-top-dec {
   display: flex;
   align-items: center;
@@ -401,18 +379,9 @@ body {
   color: var(--gold);
 }
 
-.cert-line {
-  flex: 1;
-  height: 1px;
-  background: var(--gold);
-}
+.cert-line { flex: 1; height: 1px; background: var(--gold); }
+.cert-star { font-size: 1rem; color: var(--gold); }
 
-.cert-star {
-  font-size: 1rem;
-  color: var(--gold);
-}
-
-/* ---- University name ---- */
 .cert-university {
   font-family: 'Lato', sans-serif;
   font-size: 0.85rem;
@@ -422,7 +391,6 @@ body {
   color: var(--blue-dark);
 }
 
-/* ---- Certificate main title ---- */
 .cert-title-text {
   font-family: 'Playfair Display', serif;
   font-size: 2rem;
@@ -431,7 +399,6 @@ body {
   line-height: 1.2;
 }
 
-/* ---- Gold divider ---- */
 .cert-divider {
   width: 80px;
   height: 3px;
@@ -440,14 +407,8 @@ body {
   margin: 2px 0;
 }
 
-/* ---- "This is to certify that" ---- */
-.cert-presented {
-  font-size: 0.9rem;
-  font-style: italic;
-  color: var(--text-mid);
-}
+.cert-presented { font-size: 0.9rem; font-style: italic; color: var(--text-mid); }
 
-/* ---- Student name (big) ---- */
 .cert-name {
   font-family: 'Playfair Display', serif;
   font-size: 2.2rem;
@@ -457,23 +418,9 @@ body {
   word-break: break-word;
 }
 
-/* ---- Body text ---- */
-.cert-body-text {
-  font-size: 0.92rem;
-  color: var(--text-mid);
-  line-height: 1.6;
-  max-width: 560px;
-}
+.cert-body-text { font-size: 0.92rem; color: var(--text-mid); line-height: 1.6; max-width: 560px; }
+.cert-course { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-style: italic; color: var(--blue-dark); }
 
-/* ---- Course / program ---- */
-.cert-course {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.05rem;
-  font-style: italic;
-  color: var(--blue-dark);
-}
-
-/* ---- Footer (signature + seal + date) ---- */
 .cert-footer {
   display: flex;
   justify-content: space-between;
@@ -482,38 +429,14 @@ body {
   margin-top: 10px;
 }
 
-.cert-sig-block {
-  text-align: center;
-  flex: 1;
-}
-
-.cert-sig-block p {
-  font-size: 0.75rem;
-  color: var(--text-mid);
-  letter-spacing: 0.5px;
-  margin-top: 4px;
-}
-
-.cert-sig-line {
-  width: 120px;
-  height: 1px;
-  background: var(--blue-dark);
-  margin: 0 auto;
-}
-
-.cert-seal {
-  font-size: 2.8rem;
-  flex: 0 0 60px;
-  text-align: center;
-}
-
-.cert-date-text {
-  font-size: 0.78rem !important;
-  color: var(--text-mid) !important;
-}
+.cert-sig-block { text-align: center; flex: 1; }
+.cert-sig-block p { font-size: 0.75rem; color: var(--text-mid); letter-spacing: 0.5px; margin-top: 4px; }
+.cert-sig-line { width: 120px; height: 1px; background: var(--blue-dark); margin: 0 auto; }
+.cert-seal { font-size: 2.8rem; flex: 0 0 60px; text-align: center; }
+.cert-date-text { font-size: 0.78rem !important; color: var(--text-mid) !important; }
 
 /* ================================================
-   RESPONSIVE — mobile adjustments
+   RESPONSIVE
    ================================================ */
 @media (max-width: 600px) {
   .card { padding: 22px 16px; }
@@ -526,8 +449,7 @@ body {
 }
 
 /* ================================================
-   PRINT STYLES
-   Hide everything except the certificate
+   PRINT
    ================================================ */
 @media print {
   body * { visibility: hidden; }
